@@ -1,6 +1,8 @@
 # sesolibre-figures
 A game to eliminate figures inspired on gems style games.
 
+![Figuras](src/assets/gemas3.png)
+
 The game has options 
 - Vertical and horizontal mode, the horizontal mode works from right to left.
 - It has 4 different set of figures
