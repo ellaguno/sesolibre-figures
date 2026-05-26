@@ -9,9 +9,17 @@ on:
 jobs:
   ios:
     name: Build iOS app (unsigned)
-    runs-on: macos-14
+    # Capacitor 8 requires Xcode 16; macos-15 ships it by default.
+    runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
+
+      # Capacitor 8 needs Xcode 16; pin it explicitly so the build doesn't break
+      # if the runner's default Xcode changes.
+      - name: Select Xcode 16
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
 
       - uses: actions/setup-node@v4
         with:
