@@ -64,10 +64,26 @@ GitHub builds the mobile apps automatically — see `.github/workflows/`:
 | `web.yml` | Ubuntu | tests + `build/` web bundle |
 | `android.yml` | Ubuntu | `app-debug.apk` (installable on Android devices) |
 | `ios.yml` | macOS | `figures-unsigned.ipa` (compile-checked, **unsigned**) |
+| `release.yml` | Ubuntu + macOS | a published **GitHub Release** with both binaries |
 
-All three run on push to `main`, on pull requests, and can be triggered manually
-(**Actions → … → Run workflow**). Download the build from the run's
-**Artifacts** section.
+The first three run on push to `main`, on pull requests, and can be triggered
+manually (**Actions → … → Run workflow**). Their builds live in each run's
+**Artifacts** section (zipped, expire after 90 days, login required).
+
+### Versioned releases
+
+`release.yml` publishes **permanent, public** binaries as a GitHub Release when
+you push a version tag:
+
+```bash
+npm version patch        # bumps package.json and creates the git tag
+git push --follow-tags   # pushes the commit + tag → builds and publishes
+# …or just:
+git tag v1.0.0 && git push origin v1.0.0
+```
+
+The release page then has `figures-<tag>-android.apk` and
+`figures-<tag>-ios-unsigned.ipa` as downloadable assets.
 
 > **Yes, GitHub Actions can build both.** Android APKs build for free on Linux
 > runners. iOS builds run on GitHub's macOS runners.
