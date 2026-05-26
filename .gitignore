@@ -11,6 +11,10 @@
 # production
 /build
 
+# capacitor native projects (regenerated from capacitor.config.json in CI / via `npx cap add`)
+/android
+/ios
+
 # misc
 .DS_Store
 .env.local

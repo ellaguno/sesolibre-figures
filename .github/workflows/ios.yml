@@ -1,0 +1,69 @@
+name: iOS Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  ios:
+    name: Build iOS app (unsigned)
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build web assets
+        run: npm run build
+
+      # The ios/ project is not committed; Capacitor regenerates it from
+      # capacitor.config.json (Capacitor 8 uses Swift Package Manager, so no
+      # CocoaPods install is needed). `cap sync` copies the web build into it.
+      - name: Add & sync iOS platform
+        run: |
+          if [ ! -d ios ]; then npx cap add ios; fi
+          npx cap sync ios
+
+      # Opening the project auto-creates the "App" scheme for xcodebuild.
+      - name: List schemes
+        run: xcodebuild -project ios/App/App.xcodeproj -list
+
+      # Unsigned build: validates that the app compiles. A signed, installable
+      # .ipa additionally requires an Apple Developer account + certificates
+      # (see README → "Signing iOS").
+      - name: Build unsigned (no code signing)
+        run: |
+          xcodebuild \
+            -project ios/App/App.xcodeproj \
+            -scheme App \
+            -configuration Debug \
+            -sdk iphoneos \
+            -derivedDataPath ios/build \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            build
+
+      # Wrap the unsigned .app into an .ipa-shaped archive as a downloadable
+      # artifact. (Not installable on a device until signed.)
+      - name: Package unsigned .app into .ipa
+        run: |
+          cd ios/build/Build/Products/Debug-iphoneos
+          mkdir -p Payload
+          cp -R App.app Payload/
+          zip -qr figures-unsigned.ipa Payload
+
+      - name: Upload unsigned iOS build
+        uses: actions/upload-artifact@v4
+        with:
+          name: figures-ios-unsigned-ipa
+          path: ios/build/Build/Products/Debug-iphoneos/figures-unsigned.ipa
+          if-no-files-found: error

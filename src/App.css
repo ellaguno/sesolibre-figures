@@ -2,6 +2,33 @@
   text-align: center;
 }
 
+/* Match-3 board animations (moved out of an inline styled-jsx block, which CRA
+   does not support and which logged a non-boolean `jsx` attribute warning). */
+@keyframes destruction {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.2); opacity: 0.5; }
+  100% { transform: scale(0); opacity: 0; }
+}
+.animate-destruction {
+  animation: destruction 0.5s ease-out;
+}
+
+@keyframes fall {
+  from { transform: translateY(var(--fall-start)); }
+  to { transform: translateY(0); }
+}
+.animate-fall {
+  animation: fall 0.5s ease-out;
+}
+
+@keyframes slide {
+  from { transform: translateX(var(--slide-start)); }
+  to { transform: translateX(0); }
+}
+.animate-slide {
+  animation: slide 0.5s ease-out;
+}
+
 .App-logo {
   height: 40vmin;
   pointer-events: none;
